@@ -64,5 +64,10 @@ export const styles = StyleSheet.create({
       fontSize: 20,
       fontFamily: 'serif',
       fontWeight: 'bold',
+    },
+    matchSettings: {
+      padding: 20,
+      flex: 1,
+      backgroundColor: '#008b8b'
     }
   });

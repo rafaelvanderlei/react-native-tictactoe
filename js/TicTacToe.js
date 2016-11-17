@@ -17,6 +17,8 @@ import BoardColumn from './BoardColumn';
 
 import { styles } from './styles';
 
+import MatchSettings from './MatchSettings';
+
 export default class TicTacToe extends Component {
 
   constructor(props) {
@@ -154,6 +156,8 @@ export default class TicTacToe extends Component {
       (rowColumns, rowIndex) => <BoardRow key={rowIndex} row={rowIndex} columns={rowColumns} appState={this.state} onPress={this.insertMark.bind(this)}/>
     );
 
+    return () <MatchSettings /> );
+/*
     return (
       <View style={{flex: 1}}>
         <Modal style={{alignItems: 'center', justifyContent: 'center'}} animationType={"slide"} transparent={true} visible={this.state.modalVisible} onRequestClose={() => {alert("Modal has been closed.")}} >
@@ -181,7 +185,7 @@ export default class TicTacToe extends Component {
             {verticalLine}
           </View>
       </View>
-    );
+    );*/
   }
 }
 
