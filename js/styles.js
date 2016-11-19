@@ -85,7 +85,8 @@ export const styles = StyleSheet.create({
     matchSettingsPlayerLabel: {
       fontFamily: 'serif',
       fontWeight: 'bold',
-      color: '#f0e68c'
+      // color: '#f0e68c'
+      color: '#1e90ff'
     },
     matchSettingsPlayerInput: {
       fontFamily: 'serif',

@@ -12,6 +12,8 @@ import {
   Modal
 } from 'react-native';
 
+import Icon from 'react-native-vector-icons/FontAwesome';
+
 import BoardRow from './BoardRow';
 import BoardColumn from './BoardColumn';
 
@@ -200,11 +202,11 @@ export default class TicTacToe extends Component {
         <View style={styles.container}>
           <View style={styles.header}>
             <View>
-            <Text style={{fontSize: 20, fontWeight: 'bold'}}>Tic Tac Toe</Text>
+              <Text style={{fontSize: 20, fontWeight: 'bold'}}>Tic Tac Toe</Text>
             </View>
-            <View style={{ position: 'absolute', right: 10, justifyContent: 'center', alignItems: 'center'}}>
+            <View style={{ position: 'absolute', right: 10, justifyContent: 'center', alignItems: 'center', height: 25, borderLeftWidth: 1, paddingLeft: 5}}>
               <TouchableOpacity onPress={ ()=>this.setState({ settingsVisible: true}) }>
-                <Text style={{fontSize: 20, fontWeight: 'bold' }}>...</Text>
+                <Text style={{fontSize: 20, fontWeight: 'bold' }}><Icon name="wrench" size={20} /></Text>
               </TouchableOpacity>
             </View>
           </View>

@@ -11,6 +11,9 @@ import {
 import { styles } from './styles';
 import Button from './util/Button';
 
+import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
+import { Fumi } from 'react-native-textinput-effects';
+
 export default class MatchSettings extends Component {
   constructor(props) {
     super(props);
@@ -32,19 +35,21 @@ export default class MatchSettings extends Component {
         </View>
         <View style={{padding: 20}}>
           <PlayerInput label="Player 1" playerName={this.state.player1Name}
+            iconName="user"
             inputProps={{
-              placeholder: "Insert player 1 name",
               onChangeText: (player1Name) => { this.setState({player1Name}) },
-              onSubmitEditing: () => this.refs["2"].refs["input"].focus(),
+              onSubmitEditing: () => this.refs["2"].refs["fumi"].refs["input"].focus(),
               returnKeyType: 'next'
             }}/>
+          <View style={{height:10}}/>
           <PlayerInput ref="2" label="Player 2" playerName={this.state.player2Name}
+            iconName="user-o"
             inputProps={{
-              placeholder: "Insert player 2 name",
               onChangeText: (player2Name) => this.setState({player2Name}),
               onSubmitEditing: () => this.saveSettings(),
               returnKeyType: 'done'
             }}/>
+          <View style={{height:10}}/>
           <View style={{alignItems: 'flex-end'}}>
             <Button onPress={()=>this.saveSettings()} text="Save"/>
           </View>
@@ -54,20 +59,23 @@ export default class MatchSettings extends Component {
   }
 }
 
+//Workaround for eventual bug in Fumi's component.
+//https://github.com/halilb/react-native-textinput-effects/issues/15
+class MyIcon extends FontAwesomeIcon {
+  viewConfig = {};
+}
 class PlayerInput extends Component {
   render() {
-    return(
-      <View>
-        <Text style={styles.matchSettingsPlayerLabel}>{this.props.label}</Text>
-        <TextInput
-          style={styles.matchSettingsPlayerInput}
-          value={this.props.playerName}
-          placeholderTextColor='#add8e6'
-          ref="input"
-          {...this.props.inputProps}
-          />
-      </View>
-
-    );
+    return <Fumi
+    ref="fumi"
+    style={{backgroundColor: 'rgba(252,252,252,0.75)'}}
+    labelStyle={styles.matchSettingsPlayerLabel}
+    label={this.props.label}
+    value={this.props.playerName}
+    {...this.props.inputProps}
+    iconClass={MyIcon}
+    iconName={this.props.iconName}
+    iconColor={'#f95a25'}
+    />;
   }
 }
