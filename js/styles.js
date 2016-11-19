@@ -51,7 +51,7 @@ export const styles = StyleSheet.create({
       flexDirection: 'row',
       justifyContent: 'space-between',
     },
-    restartButtonContainer: {
+    buttonContainer: {
       backgroundColor: '#f0e68c',
       width: 100,
       height: 50,
@@ -60,14 +60,37 @@ export const styles = StyleSheet.create({
       elevation: 5,
       borderRadius: 10
     },
-    restartButtonText: {
+    buttonText: {
       fontSize: 20,
       fontFamily: 'serif',
       fontWeight: 'bold',
     },
     matchSettings: {
-      padding: 20,
-      flex: 1,
-      backgroundColor: '#008b8b'
-    }
+      // padding: 20,
+      width: 300,
+      backgroundColor: 'rgba(52,52,52,0.75)'
+    },
+    matchSettingsHeader: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      height: 30,
+      // marginTop: -20,
+      borderWidth: 1,
+      backgroundColor: '#ffd700',
+    },
+    matchSettingsHeaderText: {
+      // color: '#ffffe0',
+      fontWeight: 'bold'
+    },
+    matchSettingsPlayerLabel: {
+      fontFamily: 'serif',
+      fontWeight: 'bold',
+      color: '#f0e68c'
+    },
+    matchSettingsPlayerInput: {
+      fontFamily: 'serif',
+      color: '#add8e6',
+      borderColor: 'red'
+      // borderColor: '#add8e6'
+    },
   });

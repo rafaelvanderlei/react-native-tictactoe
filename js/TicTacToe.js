@@ -16,6 +16,7 @@ import BoardRow from './BoardRow';
 import BoardColumn from './BoardColumn';
 
 import { styles } from './styles';
+import Button from './util/Button';
 
 import MatchSettings from './MatchSettings';
 
@@ -23,20 +24,37 @@ export default class TicTacToe extends Component {
 
   constructor(props) {
     super(props);
-    this.state = this._getInitialState();
+    this.state = this._getInitialState( true );
   }
 
-  _getInitialState() {
-    return {
+  _getInitialState( resetSettings=false ) {
+    let _state = {
       player: 1,
       matrix: [
         ['','',''],
         ['','',''],
         ['','','']
       ],
-      gameResult: new GameResult('',false),
+      gameResult: new GameResult(null,false),
       modalVisible: false,
+      // settings: this.state.settings
     };
+
+    if( resetSettings ) {
+      _state.settings = {
+        player1: {
+          name: 'Player 1',
+          mark: 'X'
+        },
+        player2: {
+          name: 'Player 2',
+          mark: 'O'
+        }
+      }
+      _state.settingsVisible = true;
+    }
+
+    return _state;
   }
 
   restartGame() {
@@ -62,21 +80,13 @@ export default class TicTacToe extends Component {
     }
   }
   );
-    console.log(this.state);
   }
 
-  checkEndGame(cb) {
+  checkEndGame( cb ) {
     let winner = this.checkWinner();
-    if( winner == '' ) {
-      //check tie
-      if( ! this.hasAvailableSpaces() ) {
-        this.setState( {gameResult : new GameResult('', true) }, cb );
-      }
+    let tie = ( winner == null && !this.hasAvailableSpaces() );
 
-      cb();
-    } else {
-      this.setState( { gameResult : new GameResult(winner, false) }, cb );
-    }
+    this.setState( { gameResult : new GameResult( winner, tie) }, cb );
   }
 
   hasAvailableSpaces() {
@@ -102,26 +112,26 @@ export default class TicTacToe extends Component {
   }
 
   checkWinner() {
-    let winner = '';
+    let winner = null;
     for(let i = 0; i < 3; i++) {
         //check rows
         winner = this.checkTripletResult(this.state.matrix[i][0], this.state.matrix[i][1], this.state.matrix[i][2]);
-        if( winner != '') {
+        if( winner != null ) {
           break;
         }
 
         //check columns
         winner = this.checkTripletResult(this.state.matrix[0][i], this.state.matrix[1][i], this.state.matrix[2][i]);
-        if( winner != '') {
+        if( winner != null ) {
           break;
         }
 
     }
 
-    if( winner == '' ) {
+    if( winner == null ) {
       //check diagonals
       winner = this.checkTripletResult(this.state.matrix[0][0], this.state.matrix[1][1], this.state.matrix[2][2]);
-      if( winner == '' ) {
+      if( winner == null ) {
         winner = this.checkTripletResult(this.state.matrix[0][2], this.state.matrix[1][1], this.state.matrix[2][0]);
       }
     }
@@ -132,9 +142,16 @@ export default class TicTacToe extends Component {
   checkTripletResult(item0, item1, item2) {
     let rowResult = item0+item1+item2;
     if( rowResult == 'XXX' || rowResult == 'OOO' ) {
-      return item0;
+      return (
+        ( mark ) => {
+          if( mark == this.state.settings.player1.mark ) {
+            return this.state.settings.player1;
+          }
+          return this.state.settings.player2;
+        }
+      )( item0 );
     } else {
-      return '';
+      return null;
     }
   }
 
@@ -156,36 +173,50 @@ export default class TicTacToe extends Component {
       (rowColumns, rowIndex) => <BoardRow key={rowIndex} row={rowIndex} columns={rowColumns} appState={this.state} onPress={this.insertMark.bind(this)}/>
     );
 
-    return () <MatchSettings /> );
-/*
     return (
       <View style={{flex: 1}}>
-        <Modal style={{alignItems: 'center', justifyContent: 'center'}} animationType={"slide"} transparent={true} visible={this.state.modalVisible} onRequestClose={() => {alert("Modal has been closed.")}} >
-        <View style={{flex: 1, alignItems: 'center', justifyContent: 'center', }}>
-        <View style={{width: 360, height: 175, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(52,52,52,0.75)', }}>
-              <Text style={{fontSize: 30, fontWeight: 'bold', color: 'rgba(252,252,252,0.4)'}}>Game Over!</Text>
-              <Text style={{fontSize: 30, fontWeight: 'bold', color: 'rgba(252,252,252,0.4)'}}>{( this.state.gameResult.tie ? 'Tie!' : 'Winner: ' + this.state.gameResult.winner )}</Text>
-          <TouchableOpacity style={{padding: 10}} onPress={() => { this.setState( { modalVisible: false } ) }}>
-            <View style={styles.restartButtonContainer}>
-              <Text style={styles.restartButtonText}>OK</Text>
-            </View>
-          </TouchableOpacity>
-        </View>
-        </View>
-        </Modal>
-          <View style={styles.container}>
-            <View style={styles.header}>
-              <Text style={{fontSize: 20, fontWeight: 'bold'}}>Tic Tac Toe</Text>
-            </View>
-            <View style={styles.board}>
-              {rows}
-            </View>
-            <Footer player={this.state.player} onPressRestart={this.restartGame.bind(this)}/>
-            {horizontalLine}
-            {verticalLine}
+        <Modal style={{alignItems: 'center', justifyContent: 'center'}} animationType={"slide"} transparent={true}  onRequestClose={()=>{}} visible={this.state.settingsVisible}>
+          <View style={{flex: 1, alignItems: 'center', justifyContent: 'center', }}>
+            <MatchSettings appState={this.state} onSave={(player1Name, player2Name)=>{ this.setState( {
+              settings: {
+                player1: { name: player1Name, mark: this.state.settings.player1.mark },
+                player2: { name: player2Name, mark: this.state.settings.player2.mark },
+              },
+              settingsVisible: false } ) }}/>
           </View>
+        </Modal>
+        <Modal style={{alignItems: 'center', justifyContent: 'center'}} animationType={"slide"} transparent={true} visible={this.state.modalVisible} onRequestClose={()=>{}} >
+          <View style={{flex: 1, alignItems: 'center', justifyContent: 'center', }}>
+            <View style={{width: 360, height: 175, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(52,52,52,0.75)', }}>
+              <Text style={{fontSize: 30, fontWeight: 'bold', color: 'rgba(252,252,252,0.4)'}}>Game Over!</Text>
+              <Text style={{fontSize: 30, fontWeight: 'bold', color: 'rgba(252,252,252,0.4)'}}>{
+                this.state.gameResult.gameOver() && ( this.state.gameResult.tie ? 'Tie!' : 'Winner: ' + this.state.gameResult.winner.name )}</Text>
+              <View style={{padding:10}}>
+                <Button style={{padding: 10}} onPress={() => { this.setState( { modalVisible: false } ) }} text="OK" />
+              </View>
+            </View>
+          </View>
+        </Modal>
+        <View style={styles.container}>
+          <View style={styles.header}>
+            <View>
+            <Text style={{fontSize: 20, fontWeight: 'bold'}}>Tic Tac Toe</Text>
+            </View>
+            <View style={{ position: 'absolute', right: 10, justifyContent: 'center', alignItems: 'center'}}>
+              <TouchableOpacity onPress={ ()=>this.setState({ settingsVisible: true}) }>
+                <Text style={{fontSize: 20, fontWeight: 'bold' }}>...</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+          <View style={styles.board}>
+            {rows}
+          </View>
+          <Footer player={this.state.player == 1 ? this.state.settings.player1.name : this.state.settings.player2.name} onPressRestart={this.restartGame.bind(this)}/>
+          {horizontalLine}
+          {verticalLine}
+        </View>
       </View>
-    );*/
+    );
   }
 }
 
@@ -199,7 +230,7 @@ class GameResult {
   }
 
   gameOver() {
-    return ( this.winner != '' || this.tie );
+    return ( this.winner != null || this.tie );
   }
 }
 
@@ -209,11 +240,7 @@ class Footer extends Component {
     return (
       <View style={styles.footer}>
         <Text style={{fontWeight: 'bold', fontSize: 20}}>Player: {this.props.player}</Text>
-        <TouchableOpacity onPress={this.props.onPressRestart}>
-          <View style={styles.restartButtonContainer}>
-            <Text style={styles.restartButtonText}>Restart</Text>
-          </View>
-        </TouchableOpacity>
+        <Button onPress={this.props.onPressRestart} text="Restart" />
       </View>
     );
   }
