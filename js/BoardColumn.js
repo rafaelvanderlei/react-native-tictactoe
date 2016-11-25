@@ -28,7 +28,7 @@ export default class BoardColumn extends Component {
   }
 
   markColor() {
-    return ( this.state.mark == 'X' ) ? null : { color: '#f0e68c' };
+    return ( this.state.mark == 'X' ) ? { color: '#2f4f4f' } : { color: '#f0e68c' };
   }
 
   componentWillReceiveProps(nextProps) {

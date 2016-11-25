@@ -21,11 +21,13 @@ import { styles } from './styles';
 import Button from './util/Button';
 
 import MatchSettings from './MatchSettings';
+import AnimatedLine from './util/AnimatedLine';
 
 export default class TicTacToe extends Component {
 
   constructor(props) {
     super(props);
+    this.winnerLinePosition = {};
     this.state = this._getInitialState( true );
   }
 
@@ -119,12 +121,18 @@ export default class TicTacToe extends Component {
         //check rows
         winner = this.checkTripletResult(this.state.matrix[i][0], this.state.matrix[i][1], this.state.matrix[i][2]);
         if( winner != null ) {
+          this.winnerLinePosition = {
+            horizontal: i
+          };
           break;
         }
 
         //check columns
         winner = this.checkTripletResult(this.state.matrix[0][i], this.state.matrix[1][i], this.state.matrix[2][i]);
         if( winner != null ) {
+          this.winnerLinePosition = {
+            vertical: i
+          };
           break;
         }
 
@@ -133,8 +141,17 @@ export default class TicTacToe extends Component {
     if( winner == null ) {
       //check diagonals
       winner = this.checkTripletResult(this.state.matrix[0][0], this.state.matrix[1][1], this.state.matrix[2][2]);
-      if( winner == null ) {
+      if( winner != null ) {
+        this.winnerLinePosition = {
+          diagonal: 0
+        };
+      } else {
         winner = this.checkTripletResult(this.state.matrix[0][2], this.state.matrix[1][1], this.state.matrix[2][0]);
+        if( winner != null ) {
+          this.winnerLinePosition = {
+            diagonal: 1
+          };
+        }
       }
     }
 
@@ -157,19 +174,29 @@ export default class TicTacToe extends Component {
     }
   }
 
+  getWinnerLine() {
+    let style = { position: 'absolute' };
+    style.backgroundColor = this.state.gameResult.winner.mark == 'X' ? '#2f4f4f' : '#f0e68c';
+
+    if( this.winnerLinePosition.horizontal != null ) {
+      style.marginLeft = 10;
+      style.top = [147,308,468][ this.winnerLinePosition.horizontal ];
+      return <AnimatedLine style={style} direction="horizontal" maxWidth={350}/>;
+    } else if( this.winnerLinePosition.vertical != null ) {
+      style.top = 80;
+      style.left = [81,204,327][ this.winnerLinePosition.vertical ];
+      return <AnimatedLine style={style} direction="vertical" maxHeight={450}/>;
+    } else {
+      console.log('TODO: draw line through diagonal #' + this.winnerLinePosition.diagonal);
+      return null;
+    }
+
+
+  }
+
   render() {
 
-    let horizontalLine =
-    false
-    // ( this.state.mark == 'X' )
-    ? <View style={{flex: 1, alignSelf: 'stretch', position: 'absolute', top: 70, left: 0, right: 0, height: 5, backgroundColor: '#e0ffff'}} />
-    : null;
-
-    let verticalLine =
-    false
-    // ( this.state.mark == 'O' )
-    ? <View style={{flex: 1, alignSelf: 'stretch', position: 'absolute', top: 0, bottom: 0, left: 53, width: 5, backgroundColor: '#e0ffff'}} />
-    : null;
+    let winnerLine = ( this.state.gameResult.winner != null ) ? this.getWinnerLine() : null;
 
     let rows = this.state.matrix.map(
       (rowColumns, rowIndex) => <BoardRow key={rowIndex} row={rowIndex} columns={rowColumns} appState={this.state} onPress={this.insertMark.bind(this)}/>
@@ -204,7 +231,7 @@ export default class TicTacToe extends Component {
             <View>
               <Text style={{fontSize: 20, fontWeight: 'bold'}}>Tic Tac Toe</Text>
             </View>
-            <View style={{ position: 'absolute', right: 10, justifyContent: 'center', alignItems: 'center', height: 25, borderLeftWidth: 1, paddingLeft: 5}}>
+            <View style={{ position: 'absolute', right: 10, justifyContent: 'center', alignItems: 'center', height: 25}}>
               <TouchableOpacity onPress={ ()=>this.setState({ settingsVisible: true}) }>
                 <Text style={{fontSize: 20, fontWeight: 'bold' }}><Icon name="wrench" size={20} /></Text>
               </TouchableOpacity>
@@ -214,8 +241,7 @@ export default class TicTacToe extends Component {
             {rows}
           </View>
           <Footer player={this.state.player == 1 ? this.state.settings.player1.name : this.state.settings.player2.name} onPressRestart={this.restartGame.bind(this)}/>
-          {horizontalLine}
-          {verticalLine}
+          {winnerLine}
         </View>
       </View>
     );
