@@ -17,7 +17,6 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import BoardRow from './BoardRow';
 import Square from './Square';
 
-import { styles } from './styles';
 import Button from './util/Button';
 
 import MatchSettings from './MatchSettings';
@@ -274,3 +273,30 @@ class Footer extends Component {
     );
   }
 }
+
+const styles = StyleSheet.create({
+    container: {
+      padding: 20,
+      flex: 1,
+      backgroundColor: '#008b8b'
+    },
+    header: {
+      padding: 10,
+      flex: 1,
+      flexDirection: 'row',
+      justifyContent: 'center',
+      borderWidth: 1,
+      backgroundColor: '#ffd700'
+    },
+    board: {
+      flex: 20,
+      justifyContent: 'space-between',
+      backgroundColor: 'blue'
+    },
+    footer: {
+      padding: 10,
+      flex: 3,
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+    },
+  });

@@ -8,8 +8,6 @@ import {
 
 import Square from './Square';
 
-import { styles } from './styles';
-
 export default class BoardRow extends Component {
 
   // TODO: define props (squares, gameOver, onSquarePress)
@@ -26,3 +24,14 @@ export default class BoardRow extends Component {
     );
   }
 }
+
+const styles = StyleSheet.create({
+    boardRow: {
+      flex: 1,
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      borderWidth: 1,
+      backgroundColor: 'green'
+    },
+  });

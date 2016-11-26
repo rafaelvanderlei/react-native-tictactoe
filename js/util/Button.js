@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
 import {
+  StyleSheet,
   View,
   Text,
   TouchableOpacity,
 } from 'react-native';
-
-import { styles } from '../styles';
 
 export default class Button extends Component {
 
@@ -18,3 +17,20 @@ export default class Button extends Component {
       </TouchableOpacity>
   )};
 }
+
+const styles = StyleSheet.create({
+    buttonContainer: {
+      backgroundColor: '#f0e68c',
+      width: 100,
+      height: 50,
+      alignItems: 'center',
+      justifyContent: 'center',
+      elevation: 5,
+      borderRadius: 10
+    },
+    buttonText: {
+      fontSize: 20,
+      fontFamily: 'serif',
+      fontWeight: 'bold',
+    },
+  });

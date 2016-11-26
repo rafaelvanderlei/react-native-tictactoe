@@ -8,7 +8,6 @@ import {
   TextInput
 } from 'react-native';
 
-import { styles } from './styles';
 import Button from './util/Button';
 
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
@@ -75,7 +74,7 @@ class PlayerInput extends Component {
   render() {
     return <Fumi
             ref="fumi"
-            style={{backgroundColor: 'rgba(252,252,252,0.75)'}}
+            style={styles.matchSettingsPlayerInput}
             labelStyle={styles.matchSettingsPlayerLabel}
             label={this.props.label}
             value={this.props.playerName}
@@ -86,3 +85,28 @@ class PlayerInput extends Component {
             />;
   }
 }
+
+const styles = StyleSheet.create({
+    matchSettings: {
+      width: 300,
+      backgroundColor: 'rgba(52,52,52,0.75)'
+    },
+    matchSettingsHeader: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      height: 30,
+      borderWidth: 1,
+      backgroundColor: '#ffd700',
+    },
+    matchSettingsHeaderText: {
+      fontWeight: 'bold'
+    },
+    matchSettingsPlayerLabel: {
+      fontFamily: 'serif',
+      fontWeight: 'bold',
+      color: '#1e90ff'
+    },
+    matchSettingsPlayerInput: {
+      backgroundColor: 'rgba(252,252,252,0.75)'
+    }
+  });
