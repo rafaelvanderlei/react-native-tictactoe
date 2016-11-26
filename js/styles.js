@@ -24,7 +24,7 @@ export const styles = StyleSheet.create({
       borderWidth: 1,
       backgroundColor: 'green'
     },
-    boardColumn: {
+    Square: {
       flex: 1,
       flexDirection: 'row',
       alignItems: 'center',
@@ -36,6 +36,12 @@ export const styles = StyleSheet.create({
     mark: {
       fontSize: 100,
       fontWeight: 'bold'
+    },
+    markX: {
+      color: '#2f4f4f'
+    },
+    markY: {
+      color: '#f0e68c'
     },
     header: {
       padding: 10,

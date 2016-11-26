@@ -15,7 +15,7 @@ import {
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 import BoardRow from './BoardRow';
-import BoardColumn from './BoardColumn';
+import Square from './Square';
 
 import { styles } from './styles';
 import Button from './util/Button';
@@ -67,8 +67,11 @@ export default class TicTacToe extends Component {
     );
   }
 
-  insertMark(i,j,mark) {
-    this.state.matrix[i][j] = mark;
+  insertMark(i,j) {
+
+    let newMark = ( this.state.player == 1 ) ? 'X' : 'O';
+    this.state.matrix[i][j] = newMark;
+
     this.setState(
       { matrix: this.state.matrix }
     );
@@ -197,20 +200,18 @@ export default class TicTacToe extends Component {
   render() {
 
     let winnerLine = ( this.state.gameResult.winner != null ) ? this.getWinnerLine() : null;
+    let gameOver = this.state.gameResult.gameOver();
 
     let rows = this.state.matrix.map(
-      (rowColumns, rowIndex) => <BoardRow key={rowIndex} row={rowIndex} columns={rowColumns} appState={this.state} onPress={this.insertMark.bind(this)}/>
+      (squares, rowIndex) => <BoardRow key={rowIndex} squares={squares} gameOver={gameOver} onSquarePress={(squareIndex)=>this.insertMark(rowIndex,squareIndex)}/>
     );
 
     return (
       <View style={{flex: 1}}>
         <Modal style={{alignItems: 'center', justifyContent: 'center'}} animationType={"slide"} transparent={true}  onRequestClose={()=>{}} visible={this.state.settingsVisible}>
           <View style={{flex: 1, alignItems: 'center', justifyContent: 'center', }}>
-            <MatchSettings appState={this.state} onSave={(player1Name, player2Name)=>{ this.setState( {
-              settings: {
-                player1: { name: player1Name, mark: this.state.settings.player1.mark },
-                player2: { name: player2Name, mark: this.state.settings.player2.mark },
-              },
+            <MatchSettings settings={this.state.settings} onSave={(newSettings)=>{ this.setState( {
+              settings: newSettings,
               settingsVisible: false } ) }}/>
           </View>
         </Modal>

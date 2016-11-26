@@ -18,13 +18,20 @@ export default class MatchSettings extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      player1Name: this.props.appState.settings.player1.name,
-      player2Name: this.props.appState.settings.player2.name
+      player1Name: this.props.settings.player1.name,
+      player2Name: this.props.settings.player2.name
     };
   }
 
   saveSettings() {
-    this.props.onSave(this.state.player1Name, this.state.player2Name);
+
+    let settings = {
+      ...this.props.settings,
+      player1: { ...this.props.settings.player1, name: this.state.player1Name },
+      player2: { ...this.props.settings.player2, name: this.state.player2Name },
+    }
+
+    this.props.onSave( settings );
   }
 
   render() {
@@ -67,15 +74,15 @@ class MyIcon extends FontAwesomeIcon {
 class PlayerInput extends Component {
   render() {
     return <Fumi
-    ref="fumi"
-    style={{backgroundColor: 'rgba(252,252,252,0.75)'}}
-    labelStyle={styles.matchSettingsPlayerLabel}
-    label={this.props.label}
-    value={this.props.playerName}
-    {...this.props.inputProps}
-    iconClass={MyIcon}
-    iconName={this.props.iconName}
-    iconColor={'#f95a25'}
-    />;
+            ref="fumi"
+            style={{backgroundColor: 'rgba(252,252,252,0.75)'}}
+            labelStyle={styles.matchSettingsPlayerLabel}
+            label={this.props.label}
+            value={this.props.playerName}
+            {...this.props.inputProps}
+            iconClass={MyIcon}
+            iconName={this.props.iconName}
+            iconColor={'#f95a25'}
+            />;
   }
 }
