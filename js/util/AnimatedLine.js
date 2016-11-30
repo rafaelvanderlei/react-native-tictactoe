@@ -1,3 +1,6 @@
+// @flow
+'use strict';
+
 import React, {
   Component
 } from 'react';
@@ -5,21 +8,23 @@ import {
   Animated,
 } from 'react-native';
 
+type Props = {
+  direction : "horizontal" | "vertical";
+  maxWidth? : number;
+  maxHeight? : number;
+  style? : any;
+};
+
 export default class AnimatedLine extends Component {
 
-  constructor(props) {
-    super(props);
-    if( this.props.direction == 'horizontal' ) {
-      this.state = {
-        lineWidth: new Animated.Value(0),
-      };
-    } else {
-      this.state = {
-        lineHeight: new Animated.Value(0),
-      };
-    }
-  }
+  props : Props;
 
+  state : {
+    lineWidth?: Animated.Value;
+    lineHeight?: Animated.Value;
+  };
+
+  // TODO: see how to declare conditionally required properties using Flow to eliminate the use of propTypes and avoid duplicated code.
   static propTypes = {
     direction : React.PropTypes.string.isRequired,
     maxWidth : function(props, propName, componentName) {
@@ -38,12 +43,24 @@ export default class AnimatedLine extends Component {
     }
   }
 
-  render() {
+  constructor(props:Props) {
+    super(props);
+    if( this.props.direction == 'horizontal' ) {
+      this.state = {
+        lineWidth: new Animated.Value(0),
+      };
+    } else {
+      this.state = {
+        lineHeight: new Animated.Value(0),
+      };
+    }
+  }
 
+  render() {
     let line = null;
 
     if( this.props.direction == 'horizontal' ) {
-      let lineWidth = this.state.lineWidth.interpolate(
+      let lineWidth = this.state.lineWidth && this.state.lineWidth.interpolate(
         {
           inputRange: [0, 1],
           outputRange: [0, this.props.maxWidth]
@@ -52,7 +69,7 @@ export default class AnimatedLine extends Component {
 
       line = <Animated.View style={[{ backgroundColor: 'black', height: 5, width: lineWidth},this.props.style]}/> ;
     } else {
-      let lineHeight = this.state.lineHeight.interpolate(
+      let lineHeight = this.state.lineHeight && this.state.lineHeight.interpolate(
         {
           inputRange: [0, 1],
           outputRange: [0, this.props.maxHeight]

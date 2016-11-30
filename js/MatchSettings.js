@@ -1,3 +1,6 @@
+// @flow
+'use strict';
+
 import React, {
   Component
 } from 'react';
@@ -5,16 +8,30 @@ import {
   StyleSheet,
   View,
   Text,
-  TextInput
 } from 'react-native';
+
+import Settings from './model/Settings';
+import Player from './model/Player';
 
 import Button from './util/Button';
 
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import { Fumi } from 'react-native-textinput-effects';
 
+type Props = {
+  settings : Settings;
+  onSave : (settings: Settings) => void;
+}
+
 export default class MatchSettings extends Component {
-  constructor(props) {
+
+  props : Props;
+  state : {
+    player1Name: string;
+    player2Name: string;
+  };
+
+  constructor(props:Props) {
     super(props);
     this.state = {
       player1Name: this.props.settings.player1.name,
@@ -24,11 +41,10 @@ export default class MatchSettings extends Component {
 
   saveSettings() {
 
-    let settings = {
-      ...this.props.settings,
-      player1: { ...this.props.settings.player1, name: this.state.player1Name },
-      player2: { ...this.props.settings.player2, name: this.state.player2Name },
-    }
+    let settings : Settings = new Settings(
+      new Player( this.state.player1Name, this.props.settings.player1.mark ),
+      new Player( this.state.player2Name, this.props.settings.player2.mark )
+    );
 
     this.props.onSave( settings );
   }
@@ -71,6 +87,14 @@ class MyIcon extends FontAwesomeIcon {
   viewConfig = {};
 }
 class PlayerInput extends Component {
+
+  props : {
+    label : string;
+    playerName : string;
+    inputProps : any; // TODO: try to use a more specific type, instead of any
+    iconName : string;
+  };
+
   render() {
     return <Fumi
             ref="fumi"

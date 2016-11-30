@@ -1,3 +1,6 @@
+// @flow
+'use strict';
+
 import React, {
   Component
 } from 'react';
@@ -5,12 +8,13 @@ import {
   StyleSheet,
   View,
   Text,
-  TextInput,
-  ScrollView,
   TouchableOpacity,
-  Navigator,
   Modal
 } from 'react-native';
+
+import Settings from './model/Settings';
+import Player from './model/Player';
+import GameResult from './model/GameResult';
 
 import Icon from 'react-native-vector-icons/FontAwesome';
 
@@ -22,16 +26,43 @@ import Button from './util/Button';
 import MatchSettings from './MatchSettings';
 import AnimatedLine from './util/AnimatedLine';
 
+type State = {
+    player : number;
+    matrix : Array<Array<string>>;
+    gameResult : GameResult;
+    modalVisible : boolean;
+    settings : Settings;
+    settingsVisible : boolean;
+}
+
 export default class TicTacToe extends Component {
 
-  constructor(props) {
-    super(props);
-    this.winnerLinePosition = {};
+  state : State;
+
+  winnerLinePosition : {
+    direction : string;
+    value : number;
+  };
+
+  constructor() {
+    super();
     this.state = this._getInitialState( true );
   }
 
-  _getInitialState( resetSettings=false ) {
-    let _state = {
+  _getInitialState( resetSettings:boolean ) : State {
+
+    let _settings : Settings;
+
+    if( resetSettings ) {
+      _settings = new Settings(
+        new Player('Player 1', 'X'),
+        new Player('Player 2', 'O')
+      );
+    } else {
+      _settings = this.state.settings;
+    }
+
+    let _state : State = {
       player: 1,
       matrix: [
         ['','',''],
@@ -40,67 +71,52 @@ export default class TicTacToe extends Component {
       ],
       gameResult: new GameResult(null,false),
       modalVisible: false,
-      // settings: this.state.settings
+      settings: _settings,
+      settingsVisible: resetSettings
     };
-
-    if( resetSettings ) {
-      _state.settings = {
-        player1: {
-          name: 'Player 1',
-          mark: 'X'
-        },
-        player2: {
-          name: 'Player 2',
-          mark: 'O'
-        }
-      }
-      _state.settingsVisible = true;
-    }
 
     return _state;
   }
 
-  restartGame() {
+  restartGame() : void {
     this.setState(
-      this._getInitialState()
+      this._getInitialState( false )
     );
   }
 
-  insertMark(i,j) {
+  insertMark(row : number, column : number) :void {
 
-    let newMark = ( this.state.player == 1 ) ? 'X' : 'O';
-    this.state.matrix[i][j] = newMark;
+    this.state.matrix[row][column] = ( ( this.state.player == 1 ) ? 'X' : 'O' ); // TODO: refactor to avoid mutating state.
 
     this.setState(
       { matrix: this.state.matrix }
     );
     this.checkEndGame(
-
-    ()=> {
-      if( this.state.gameResult.gameOver() ) {
-      this.setState(
-        { modalVisible: true }
-      );
-    } else {
-      this.setState( { player : ( this.state.player == 1 ? 2 : 1 ) } );
-    }
+      ()=> {
+        if( this.state.gameResult.gameOver() ) {
+        this.setState(
+          { modalVisible: true }
+        );
+        } else {
+          this.setState( { player : ( this.state.player == 1 ? 2 : 1 ) } );
+        }
+      }
+    );
   }
-  );
-  }
 
-  checkEndGame( cb ) {
-    let winner = this.checkWinner();
-    let tie = ( winner == null && !this.hasAvailableSpaces() );
+  checkEndGame( cb:()=>void ) : void {
+    let winner : ?Player = this.checkWinner();
+    let tie : boolean = ( !winner && !this.hasAvailableSpaces() );
 
     this.setState( { gameResult : new GameResult( winner, tie) }, cb );
   }
 
-  hasAvailableSpaces() {
-    let hasAvailableSpaces = false;
+  hasAvailableSpaces() : boolean {
+    let hasAvailableSpaces : boolean = false;
     this.state.matrix.some(
-      ( row ) => {
+      ( row : Array<string> ) => {
         row.some(
-          ( column ) => {
+          ( column : string ) => {
             if( column == '') {
               hasAvailableSpaces = true;
               return true;
@@ -117,14 +133,16 @@ export default class TicTacToe extends Component {
     return hasAvailableSpaces;
   }
 
-  checkWinner() {
-    let winner = null;
-    for(let i = 0; i < 3; i++) {
+  // TODO: refactor to make it a pure function, i.e., has no side effects, like assigning value to winnerLinePosition.
+  checkWinner() : ?Player {
+    let winner : ?Player = null;
+    for(let i :number = 0; i < 3; i++) {
         //check rows
         winner = this.checkTripletResult(this.state.matrix[i][0], this.state.matrix[i][1], this.state.matrix[i][2]);
         if( winner != null ) {
           this.winnerLinePosition = {
-            horizontal: i
+            direction: "horizontal",
+            value: i
           };
           break;
         }
@@ -133,7 +151,8 @@ export default class TicTacToe extends Component {
         winner = this.checkTripletResult(this.state.matrix[0][i], this.state.matrix[1][i], this.state.matrix[2][i]);
         if( winner != null ) {
           this.winnerLinePosition = {
-            vertical: i
+            direction: "vertical",
+             value: i
           };
           break;
         }
@@ -145,13 +164,15 @@ export default class TicTacToe extends Component {
       winner = this.checkTripletResult(this.state.matrix[0][0], this.state.matrix[1][1], this.state.matrix[2][2]);
       if( winner != null ) {
         this.winnerLinePosition = {
-          diagonal: 0
+          direction: "diagonal",
+          value: 0
         };
       } else {
         winner = this.checkTripletResult(this.state.matrix[0][2], this.state.matrix[1][1], this.state.matrix[2][0]);
         if( winner != null ) {
           this.winnerLinePosition = {
-            diagonal: 1
+            direction: "diagonal",
+            value: 1
           };
         }
       }
@@ -160,48 +181,52 @@ export default class TicTacToe extends Component {
     return winner;
   }
 
-  checkTripletResult(item0, item1, item2) {
-    let rowResult = item0+item1+item2;
+  checkTripletResult(mark0:string, mark1:string, mark2:string) : ?Player {
+    let rowResult : string = mark0 + mark1 + mark2;
     if( rowResult == 'XXX' || rowResult == 'OOO' ) {
-      return (
-        ( mark ) => {
-          if( mark == this.state.settings.player1.mark ) {
-            return this.state.settings.player1;
-          }
-          return this.state.settings.player2;
-        }
-      )( item0 );
+      return this.state.settings.getPlayerByMark( mark0 );
     } else {
       return null;
     }
   }
 
-  getWinnerLine() {
-    let style = { position: 'absolute' };
-    style.backgroundColor = this.state.gameResult.winner.mark == 'X' ? '#2f4f4f' : '#f0e68c';
-
-    if( this.winnerLinePosition.horizontal != null ) {
-      style.marginLeft = 10;
-      style.top = [147,308,468][ this.winnerLinePosition.horizontal ];
-      return <AnimatedLine style={style} direction="horizontal" maxWidth={350}/>;
-    } else if( this.winnerLinePosition.vertical != null ) {
-      style.top = 80;
-      style.left = [81,204,327][ this.winnerLinePosition.vertical ];
-      return <AnimatedLine style={style} direction="vertical" maxHeight={450}/>;
-    } else {
-      console.log('TODO: draw line through diagonal #' + this.winnerLinePosition.diagonal);
-      return null;
+  getWinnerLine() : any {
+    if( !this.state.gameResult.winner ) {
+      throw new Error("this.state.gameResult.winner must not bu null");
     }
 
+    if( !this.winnerLinePosition ) {
+      throw new Error("this.winnerLinePosition must not bu null");
+    }
 
+    let style :any = {
+      position: 'absolute',
+      top: undefined,
+      left: undefined,
+      marginLeft: undefined,
+      backgroundColor: ( this.state.gameResult.winner.mark == 'X' ? '#2f4f4f' : '#f0e68c' )
+    };
+
+    if( this.winnerLinePosition.direction=='horizontal') {
+      style.marginLeft = 10;
+      style.top = [147,308,468][ this.winnerLinePosition.value ];
+      return <AnimatedLine style={style} direction="horizontal" maxWidth={350}/>;
+    } else if( this.winnerLinePosition.direction=='vertical') {
+      style.top = 80;
+      style.left = [81,204,327][ this.winnerLinePosition.value ];
+      return <AnimatedLine style={style} direction="vertical" maxHeight={450}/>;
+    } else {
+      // TODO: draw diagonal line.
+      console.log('TODO: draw line through diagonal #' + this.winnerLinePosition.value.toString());
+      return null;
+    }
   }
 
   render() {
-
     let winnerLine = ( this.state.gameResult.winner != null ) ? this.getWinnerLine() : null;
-    let gameOver = this.state.gameResult.gameOver();
+    let gameOver :boolean = this.state.gameResult.gameOver();
 
-    let rows = this.state.matrix.map(
+    let rows : Array<any> = this.state.matrix.map(
       (squares, rowIndex) => <BoardRow key={rowIndex} squares={squares} gameOver={gameOver} onSquarePress={(squareIndex)=>this.insertMark(rowIndex,squareIndex)}/>
     );
 
@@ -219,7 +244,7 @@ export default class TicTacToe extends Component {
             <View style={{width: 360, height: 175, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(52,52,52,0.75)', }}>
               <Text style={{fontSize: 30, fontWeight: 'bold', color: 'rgba(252,252,252,0.4)'}}>Game Over!</Text>
               <Text style={{fontSize: 30, fontWeight: 'bold', color: 'rgba(252,252,252,0.4)'}}>{
-                this.state.gameResult.gameOver() && ( this.state.gameResult.tie ? 'Tie!' : 'Winner: ' + this.state.gameResult.winner.name )}</Text>
+                this.state.gameResult.gameOver() && ( this.state.gameResult.winner ? 'Winner: ' + this.state.gameResult.winner.name : 'Tie!' )}</Text>
               <View style={{padding:10}}>
                 <Button style={{padding: 10}} onPress={() => { this.setState( { modalVisible: false } ) }} text="OK" />
               </View>
@@ -248,21 +273,12 @@ export default class TicTacToe extends Component {
   }
 }
 
-class GameResult {
-  winner = '';
-  tie = false;
-
-  constructor(winner, tie) {
-    this.winner = winner;
-    this.tie = tie;
-  }
-
-  gameOver() {
-    return ( this.winner != null || this.tie );
-  }
-}
-
 class Footer extends Component {
+
+  props : {
+    player : string;
+    onPressRestart : () => void;
+  };
 
   render() {
     return (

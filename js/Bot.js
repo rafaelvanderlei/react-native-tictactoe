@@ -1,3 +1,6 @@
+// @flow
+'use strict';
+
 /*
 A player can play a perfect game of Tic-tac-toe (to win or, at least, draw) if they choose the first available move from the following list, each turn, as used in Newell and Simon's 1972 tic-tac-toe program.[6]
 

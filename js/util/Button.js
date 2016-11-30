@@ -1,3 +1,6 @@
+// @flow
+'use strict';
+
 import React, { Component } from 'react';
 import {
   StyleSheet,
@@ -7,6 +10,11 @@ import {
 } from 'react-native';
 
 export default class Button extends Component {
+
+  props : {
+    text : string;
+    onPress : () => void;
+  }
 
   render() {
     return (
